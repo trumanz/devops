@@ -1,0 +1,21 @@
+DEFAULT menu.c32
+MENU TITLE ESXi-6.x.x-XXXXXX-full Boot Menu
+NOHALT 1
+PROMPT 0
+TIMEOUT 600
+
+LABEL hddboot
+  LOCALBOOT 0x80
+  MENU LABEL ^Boot from local disk
+
+LABEL install
+  KERNEL ../../ESXi6.0.0b/efi/boot/bootx64.efi
+  APPEND -c pxelinux.cfg/esxi6.0.0b.boot.cfg
+  MENU LABEL ESXi-6.x.x-XXXXXX-full ^Installer
+
+
+LABEL install
+  KERNEL ESXi5.5.0/efi/boot/bootx64.efi 
+  APPEND -c ESXi5.5.0/efi/boot/boot.cfg
+  MENU LABEL ESXi5.5.0 Installer
+
