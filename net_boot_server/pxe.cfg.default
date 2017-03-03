@@ -1,0 +1,16 @@
+DEFAULT menu.c32
+MENU TITLE Boot Menu
+NOHALT 1
+PROMPT 0
+TIMEOUT 600
+
+LABEL hddboot
+  LOCALBOOT 0x80
+  MENU LABEL ^Boot from local disk
+
+LABEL install
+  MENU LABEL ESXi6.5.0 Installer
+  KERNEL ESXi6.5.0/mboot.c32
+  APPEND -c pxelinux.cfg/esxi6.5.0.boot.cfg
+
+

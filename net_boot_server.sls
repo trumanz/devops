@@ -1,31 +1,3 @@
-##### DHCP  service
-isc-dhcp-server:
-  pkg.installed:
-    - pkgs:
-      - isc-dhcp-server
-  service.running:
-     - watch:
-        - file: /etc/dhcp/dhcpd.conf
-
-
-/etc/dhcp/dhcpd.conf:
-    file.managed:
-       - source: salt://net_boot_server/dhcpd.conf
-
-##### TFTP service
-tftpd-hpa:
-  pkg.installed:
-    - pkgs:
-      - tftpd-hpa
-  service.running:
-    - watch:
-      - file: /etc/default/tftpd-hpa
-
-
-/etc/default/tftpd-hpa:
-    file.managed:
-       - source: salt://net_boot_server/tftpd-hpa
-
 
 ##### HTTP service
 apache2:
