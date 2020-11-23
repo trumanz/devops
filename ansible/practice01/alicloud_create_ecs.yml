@@ -1,0 +1,106 @@
+---
+
+- name: Create a new VPC 
+  hosts: localhost
+  connection: local
+  vars: 
+    vpc_cidr: "172.16.0.0/12"
+    vpc_name: "VPC_From_Ansible"
+    vpc_description: "Create a new VPC resource via Ansible example alicloud-ecs-vpc."
+    alicloud_region: cn-hangzhou
+    alicloud_zone: cn-hangzhou-e
+    vswitch_cidr: "172.16.1.0/24"
+    vswitch_name: "VSwitch_From_Ansible"
+    vswitch_description: "Create a new VSwitch resource via Ansible example alicloud-ecs-vpc."
+    group_name: "Security_Group_From_Ansible"
+    group_description: "Create a new security group resource via Ansible example alicloud-ecs-vpc."
+    group_inboundRules:
+      - ip_protocol: tcp
+        port_range: 22/22
+        source_cidr_ip: 0.0.0.0/0
+        t_cidr_ip: 47.89.23.33/32
+        priority: 2
+    image: centos_6_8_64_40G_base_20170222.vhd
+    type: t5-lc1m1.small
+    instance_name: newtests2
+    description: travis-ansible-instance2
+    host_name: myhost
+    count: 3
+    allocate_public_ip: True
+    internet_charge_type: PayByBandwidth
+    max_bandwidth_in: 200
+    max_bandwidth_out: 10
+    key_name: ECS_KEY
+    tags:
+      role: frontend
+  tasks: 
+  - name: Get the existing vpc
+    ali_vpc_facts:
+      region: '{{alicloud_region}}'
+      vpc_name: '{{vpc_name}}'
+    register: vpcs
+  - name: Create a new alicloud VPC resource
+    ali_vpc:
+      alicloud_region: '{{ alicloud_region }}'
+      cidr_block: '{{ vpc_cidr }}'
+      vpc_name: '{{ vpc_name }}'
+    when: not vpcs.vpcs
+    register: vpc
+  # - name: output information of the vpc
+  #   debug:
+  #     msg: "The created vpc is {{ vpc }}."
+  - name: Create a new alicloud VSwitch resource
+    ali_vswitch:
+      alicloud_region: '{{ alicloud_region }}'
+      alicloud_zone: '{{ alicloud_zone }}'
+      state: 'present'
+      cidr_block: '{{ vswitch_cidr }}'
+      vswitch_name: '{{ vswitch_name }}'
+      description: '{{ vswitch_description }}'
+      vpc_id: '{{vpcs.vpcs.0.id}}'
+    register: vswitch
+  # - name: output information of the vpc
+  #   debug:
+  #     msg: "The created vpc is {{ vpc }}."
+  # - name: output information of the vSwitch
+  #   debug:
+  #     msg: "The created vpc is {{ vswitch }}."
+  # - name: Get the existing vpc
+  #   ali_vpc_facts:
+  #     region: '{{alicloud_region}}'
+  #     vpc_name: '{{vpc_name}}'
+  #   register: vpcs
+
+  - name: Creating security group
+    ali_security_group:
+      alicloud_region: '{{ alicloud_region }}'
+      state: 'present'
+      name: '{{ group_name }}'
+      description: '{{ group_description }}'
+      vpc_id: '{{vpcs.vpcs.0.id}}'
+      rules: '{{ group_inboundRules }}'
+      rules_egress: '{{ group_outboundRules }}'
+    register: group
+
+  - name: Creating an ECS instance
+    ali_instance:
+      alicloud_region: '{{ alicloud_region }}'
+      alicloud_zone: '{{ alicloud_zone }}'
+      image_id: '{{ image }}'
+      instance_type: '{{ type }}'
+      instance_name: '{{ instance_name }}'
+      description: '{{ description }}'
+      host_name: '{{ host_name }}'
+      key_name: '{{key_name}}'
+      vswitch_id: '{{vswitch.vswitch.id}}'
+      security_groups: '{{group.group.id}}'
+      count: '{{count}}'
+      allocate_public_ip: '{{ allocate_public_ip }}'
+      internet_charge_type: '{{ internet_charge_type }}'
+      max_bandwidth_in: '{{ max_bandwidth_in }}'
+      max_bandwidth_out: '{{ max_bandwidth_out }}'
+      tags: '{{tags}}'
+    register: ecs
+  - name: output information of the vm
+    debug:
+      msg: "The created vm is {{ ecs }}."

@@ -1,0 +1,7 @@
+
+- hosts: myhost
+  become: yes
+  tasks:
+   - name: Log resoruce usage of container
+     command:
+        cmd:  while true; do docker stats nginx-proxy; sleep 10; done

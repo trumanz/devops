@@ -1,0 +1,17 @@
+
+- hosts: myhost
+  become: yes
+  tasks:
+   - name: Fetch output of nginx
+     command:
+        cmd: curl 127.0.0.1
+   - name: Copy fetch and word cout python script
+     copy:
+        src: count_words_of_nginx_output.py
+        dest: /root/count_words_of_nginx_output.py
+        owner: root
+        group: root
+        mode: '0700'
+   - name: Run  count_words_of_nginx_output.py
+     command:
+        cmd:  python /root/count_words_of_nginx_output.py
