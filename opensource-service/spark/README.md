@@ -16,9 +16,17 @@ master Web GUI: http://127.0.0.1:8080/
 ```
 $ docker exec -it  spark_spark_1  bash
 $ ./bin/spark-submit --master spark://spark:7077 ./examples/src/main/python/pi.py
+$ ./bin/spark-submit --master spark://spark:7077     ./examples/src/main/python/wordcount.py  /opt/bitnami/spark/README.md
+```
+
+### Customize wordcount.py
+
+```
+$ docker cp  wordcount.py  spark_spark_1:/
+$ docker exec -it  spark_spark_1  bash
+$ ./bin/spark-submit --master spark://spark:7077 /wordcount.py  /opt/bitnami/spark/README.md
 ````
-
-
+check folder /opt/bitnami/spark/work/output/  of any work node 
 
 ## Reference
 https://hub.docker.com/r/bitnami/spark
